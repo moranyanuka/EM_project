@@ -5,7 +5,8 @@ clear ;close all
 
 %initialize variables
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%nvariables for Q1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% variables for Q1
 p1.a = 1 + 0.5*ceil((0.25*(0+7+1))); %[m]
 p1.b = (3*p1.a)/16; %[m]
 p1.sigma = 1; %[1/ohm*m]
@@ -13,7 +14,7 @@ p1.v0 = 1;%[v]
 p1.N = 140;
 p1.h = p1.a/(p1.N-1);%[m]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%variables for the RMS error
+% variables for the RMS error
 pt.a = 1 + 0.5*ceil((0.25*(0+7+1))); %[m]
 pt.b = (3*p1.a)/16; %[m]
 pt.sigma = 1; %[1/ohm*m]
@@ -36,17 +37,17 @@ xlabel('x[m]');
 ylabel('y[m]');
 hold off;
 
-[Jx,Jy] = gradient(-1.*pot,p1.h); %sigma = 1 => sigma*E = j => E=J
+[Jx,Jy] = gradient(-1.*pot,p1.h); % sigma = 1 => sigma*E = j => E=J
 figure(2)
 hold on
-streamslice(0:p1.h:p1.a,0:p1.h:p1.a,Jx,Jy,2) %plot current lines
-set(gca, 'YDir','reverse');%flip the y axis
+streamslice(0:p1.h:p1.a,0:p1.h:p1.a,Jx,Jy,2) % plot current lines
+set(gca, 'YDir','reverse'); % flip the y axis
 set(gca,'YtickLabel',p1.a:-0.5:0)
 xlabel('x[m]')
 ylabel('y[m]')
 title('Current Flow')
 %b
-[Z,currConserv] = calcImp(p1);% Z - impedance matrix, currConserv - current conservation (%)
+[Z,currConserv] = calcImp(p1); % Z - impedance matrix, currConserv - current conservation (%)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% functions
 
@@ -54,12 +55,12 @@ title('Current Flow')
 
 function pot = setPlatePot(m,n,p)
 
-xn = ((6*n-2)*p.a)/32; %ground center position
-ym = ((6*m-2)*p.a)/32; %electrode center position
+xn = ((6*n-2)*p.a)/32; % ground center position
+ym = ((6*m-2)*p.a)/32; % electrode center position
 sol_v = zeros(1,p.N^2); % the solutions vector
-M = zeros(p.N^2,p.N^2); %the potential coefficients
+M = zeros(p.N^2,p.N^2); % the potential coefficients
 
-%electrode and ground positions
+% electrode and ground positions
 elecEnd = ym + p.b/2; 
 elecStart = ym - p.b/2;
 groundStart = xn - p.b/2;
@@ -75,19 +76,19 @@ for x = 0:p.N-1
         elseif  y == p.N-1 && ((x * p.h <= groundEnd) && (x * p.h >= groundStart)) %the ground zone- dirichle condition
             sol_v(i) = 0;
             M(i,i) = 1;
-        elseif x==0 %left edge - noyman condition
+        elseif x==0 % left edge - noyman condition
             M(i,i) = 1;
             M(i,i+p.N) = -1;
-        elseif x == p.N-1 %right edge - noyman condition
+        elseif x == p.N-1 % right edge - noyman condition
             M(i,i) = 1;
             M(i,i-p.N) = -1;
-        elseif y == 0 %upper edge - noyman condition
+        elseif y == 0 % upper edge - noyman condition
             M(i,i+1) = -1;
             M(i,i) = 1;
-        elseif y == p.N-1 %lower edge - noyman condition
+        elseif y == p.N-1 % lower edge - noyman condition
             M(i,i-1) = -1;
             M(i,i) = 1;
-        else %inside the plate - laplace estimation
+        else % inside the plate - laplace estimation
             M(i,i) = -4;
             M(i,i+1) = 1;
             M(i,i+p.N) = 1;
@@ -102,7 +103,7 @@ M = sparse(M);
 phi = M\sol_v'; % calc the potential vector (solve system of equations)  
 pot = zeros(p.N,p.N); 
 
-%reorganize the potentials back in the plate Matrix
+% reorganize the potentials back in the plate Matrix
 i = 1;
 for y = 1:p.N
     for x = 1:p.N
